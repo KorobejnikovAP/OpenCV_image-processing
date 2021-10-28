@@ -3,6 +3,7 @@ import cv2 as cv
 import sys
 from numpy.core.fromnumeric import size
 from scipy.ndimage import label
+from pathlib import *
 
 def func(img):
     img = cv.bilateralFilter(img, 15, 75, 75)
@@ -12,7 +13,7 @@ def func(img):
     #находим тень 
     t = cv.inRange(hsv_img, (0, 0, 0), (360, 255, 50))
     tt = cv.add(cv.bitwise_not(t), healthy_part)
-
+    
     mark = np.zeros((img.shape[0], img.shape[1]), dtype = "int32")
     mark[0:20, 0:20] = 1
     mark[236:255, 0:20] = 1
@@ -21,9 +22,9 @@ def func(img):
     mark[90:140, 90:140] = 255
     cv.watershed(img, mark)
     lt = cv.convertScaleAbs(mark)
-
+   
     list = cv.bitwise_and(lt, tt)
-
+    
     ill_part = list - healthy_part
     mask = np.zeros_like(img, np.uint8)
     mask[list > 1] = (255, 0, 255)
@@ -31,13 +32,8 @@ def func(img):
 
     return mask
 
-print("Введите номер картинки")
-n = input() 
-
-img = cv.imread('assets/test/{}.jpg'.format(n))
-if img is None :
-    sys.exit( "Could not re ad the image . " )
-
-cv.imshow('img', img)
-cv.imshow('result', func(img))
-cv.waitKey(0)
+for i in range(1,13):
+    img = cv.imread('assets/test/{}.jpg'.format(i))
+    if img is None :
+        sys.exit( "Could not re ad the image . " )
+    cv.imwrite('assets/result/{}.jpg'.format(i), func(img))
